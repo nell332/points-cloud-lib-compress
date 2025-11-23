@@ -1,0 +1,19 @@
+# 点云处理配置
+point_cloud:
+  # 截取范围
+  crop_range:
+    x: [0.0, 10.0]    # x轴范围
+    y: [-5.0, 5.0]    # y轴范围
+    z: [0.0, 2.0]     # z轴范围
+
+  # 网格参数
+  grid:
+    resolution: 0.1    # 网格分辨率
+    fill_value: -9999  # 无数据填充值
+    method: "max"      # 网格化方法: max, min, mean, nearest
+
+  # 输出设置
+  output:
+    save_npy: true
+    save_txt: false
+    output_path: "output_grid.npy"
