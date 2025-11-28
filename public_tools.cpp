@@ -1,9 +1,20 @@
 // public_tools.cpp
 #include "public_tools.h"
 
-void FileUtils::GetAllFormatFiles(const std::string& path, 
-                                 std::vector<std::string>& files, 
-                                 const std::string& format) {
+
+FILE* FileUtils::CrossPlatformFopen(const std::string& filename, const std::string& mode) {
+#ifdef _WIN32
+    FILE* file = nullptr;
+    fopen_s(&file, filename.c_str(), mode.c_str());
+    return file;
+#else
+    return fopen(filename.c_str(), mode.c_str());
+#endif
+}
+
+void FileUtils::GetAllFormatFiles(  const std::string& path, 
+                                    std::vector<std::string>& files, 
+                                    const std::string& format) {
     try {
         for (const auto& entry : fs::recursive_directory_iterator(path)) {
             if (entry.is_regular_file() && entry.path().extension() == format) {
@@ -15,10 +26,10 @@ void FileUtils::GetAllFormatFiles(const std::string& path,
     }
 }
 
-void FileUtils::GetAllFormatFiles(const std::string& path,
-                                 std::vector<std::string>& files_path,
-                                 std::vector<std::string>& files_name,
-                                 const std::string& format) {
+void FileUtils::GetAllFormatFiles(  const std::string& path,
+                                    std::vector<std::string>& files_path,
+                                    std::vector<std::string>& files_name,
+                                    const std::string& format) {
     try {
         for (const auto& entry : fs::recursive_directory_iterator(path)) {
             if (entry.is_regular_file() && entry.path().extension() == format) {

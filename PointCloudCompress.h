@@ -4,6 +4,8 @@
 #include "TimeTool.h"
 #include <yaml-cpp/yaml.h>
 
+using namespace std;
+
 class PointCloudCompressor {
 private:
     struct CompressionConfig {
@@ -37,24 +39,24 @@ private:
     
 public:
     bool CompressSingleFile(const std::string& input_file, 
-                           const std::string& output_file, 
-                           bool remove_duplicates);
-                           
+                            const std::string& output_file, 
+                            bool remove_duplicates);
+
     bool CompressFolder(const std::string& input_folder,
-                       const std::string& output_folder,
-                       bool remove_duplicates);
-                       
-    bool DecompressSingleFile(const std::string& input_file,
-                             const std::string& output_file);
-                             
-    bool DecompressFolder(const std::string& input_folder,
-                         const std::string& output_folder);
+                        const std::string& output_folder,
+                        bool remove_duplicates);
+                        
+    bool DecompressSingleFile(  const std::string& input_file,
+                                const std::string& output_file);
+
+    bool DecompressFolder(  const std::string& input_folder,
+                            const std::string& output_folder);
 
 private:
     bool WriteCompressedHeader(FILE* file, const CompressionConfig& config);
     bool ReadCompressedHeader(FILE* file, CompressionConfig& config);
     int CalculateRequiredBits(uint16_t value);
-    void CompressPoint(const pcl::PointXYZ& point, const CompressionConfig& config, 
-                      BitWriter& writer, bool remove_duplicates, pcl::PointXYZ& last_point);
+    void CompressPoint( const pcl::PointXYZ& point, const CompressionConfig& config, 
+                        BitWriter& writer, bool remove_duplicates, pcl::PointXYZ& last_point);
     pcl::PointXYZ DecompressPoint(BitReader& reader, const CompressionConfig& config);
 };

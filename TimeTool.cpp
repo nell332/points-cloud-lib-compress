@@ -1,6 +1,9 @@
 // TimeTool.cpp
 #include "TimeTool.h"
 
+// 定义静态成员变量
+std::chrono::high_resolution_clock::time_point Timer::start_time;
+
 void Timer::Start() {
     start_time = std::chrono::high_resolution_clock::now();
 }

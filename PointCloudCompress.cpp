@@ -3,15 +3,18 @@
 #include "yaml-cpp/yaml.h"
 
 
-int PointCloudCompressSingleFile(string pcdFileName, string outFileName, int compressionLevel) 
-{
-	BeginPfmTime();
+bool PointCloudCompressor::CompressSingleFile(	
+	const std::string& input_file, 
+    const std::string& output_file, 
+    bool remove_duplicates
+) {
+	Timer::Start();
 
 	pcl::PointXYZ points;
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw_in;
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw_out;
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw;
-	if (pcl::io::loadPCDFile<pcl::PointXYZ>(pcdFileName, cloud_raw_in)) {
+	if (pcl::io::loadPCDFile<pcl::PointXYZ>(input_file, cloud_raw_in)) {
 		std::cout << "ERROR: Cannot open pcd file " << std::endl;
 		return -1;
 	}
@@ -23,8 +26,7 @@ int PointCloudCompressSingleFile(string pcdFileName, string outFileName, int com
 		return -1;
 	}
 
-	FILE* compressFile;
-	fopen_s(&compressFile, outFileName.c_str(), "w+b");
+	FILE* compressFile = FileUtils::CrossPlatformFopen(output_file, "w+b");
 	if (compressFile == NULL) {
 		std::cout << "ERROR: Cannot open compress file " << std::endl;
 		return -1;
@@ -39,7 +41,7 @@ int PointCloudCompressSingleFile(string pcdFileName, string outFileName, int com
 	central_max[1] = config["Y_MAX"].as<float>();
 	central_max[2] = config["Z_MAX"].as<float>();
 
-	CubeCloud(cloud_raw_in, cloud_raw, central_min, central_max);
+	PointCloudUtils::CubeCloud(cloud_raw_in, cloud_raw, central_min, central_max);
 
 	uint16_t lenX = abs((central_max[0] - central_min[0]) * 100);
 	uint16_t lenY = abs((central_max[1] - central_min[1]) * 100);
@@ -81,7 +83,7 @@ int PointCloudCompressSingleFile(string pcdFileName, string outFileName, int com
 			L_Z = Z;
 		}
 		else {
-			if (L_X == X && L_Y == Y && L_Z == Z && compressionLevel == true) {
+			if (L_X == X && L_Y == Y && L_Z == Z && remove_duplicates == true) {
 				continue;
 			}
 			else {
@@ -798,15 +800,18 @@ int PointCloudCompressSingleFile(string pcdFileName, string outFileName, int com
 
 	fclose(compressFile);
 
-	double timeInterval = EndPfmTime();
-	printf_s("压缩算法总用时:%f秒\n", timeInterval);
+	double timeInterval = Timer::Stop();
+	printf("time past:%fs\n", timeInterval);
 
 	return 0;
 }
 
-int PointCloudCompressFolder(string pcdFolderName, string resultFolder, int compressionLevel) 
-{
-	BeginPfmTime();
+bool PointCloudCompressor::CompressFolder(
+	const std::string& input_folder,
+    const std::string& output_folder,
+    bool remove_duplicates
+) {
+	Timer::Start();
 
 	YAML::Node config;
 	config = YAML::LoadFile("pcd_compress.yaml");
@@ -831,7 +836,7 @@ int PointCloudCompressFolder(string pcdFolderName, string resultFolder, int comp
 
 	vector<string> pcdList;
 	string format = ".pcd";
-	GetAllFormatFiles(pcdFolderName, pcdList, format);
+	FileUtils::GetAllFormatFiles(input_folder, pcdList, format);
 
 	int size = pcdList.size();
 	for (int i = 0; i < size; i++) {
@@ -845,17 +850,18 @@ int PointCloudCompressFolder(string pcdFolderName, string resultFolder, int comp
 
 			string::size_type iPos = (	pcdList[i].find_last_of('\\') + 1) == 0 ? 
 										pcdList[i].find_last_of('/') + 1 : pcdList[i].find_last_of('\\') + 1;
-			string pcdSaveName = resultFolder + "\\" + pcdList[i].substr(iPos, pcdList[i].length() - iPos);
+			fs::path pcdSavePath = output_folder;
+			pcdSavePath /= pcdList[i].substr(iPos, pcdList[i].length() - iPos);
+			std::string pcdSaveName = pcdSavePath.string();
 			string pcdNameNTag = pcdSaveName.substr(0, pcdSaveName.rfind(".")) + ".mtx";
 
-			FILE* compressFile;
-			fopen_s(&compressFile, pcdNameNTag.c_str(), "w+b");
+			FILE* compressFile = FileUtils::CrossPlatformFopen(pcdNameNTag, "w+b");
 			if (compressFile == NULL) {
 				std::cout << "ERROR: Cannot open compress file " << std::endl;
 				return -1;
 			}
 
-			CubeCloud(cloud_raw_in, cloud_raw, central_min, central_max);
+			PointCloudUtils::CubeCloud(cloud_raw_in, cloud_raw, central_min, central_max);
 
 			uint16_t lenX = abs((central_max[0] - central_min[0]) * 100);
 			uint16_t lenY = abs((central_max[1] - central_min[1]) * 100);
@@ -897,7 +903,7 @@ int PointCloudCompressFolder(string pcdFolderName, string resultFolder, int comp
 					L_Z = Z;
 				}
 				else {
-					if (L_X == X && L_Y == Y && L_Z == Z && compressionLevel == true) {
+					if (L_X == X && L_Y == Y && L_Z == Z && remove_duplicates == true) {
 						continue;
 					}
 					else {
@@ -1616,15 +1622,17 @@ int PointCloudCompressFolder(string pcdFolderName, string resultFolder, int comp
 		}
 	}	
 
-	double timeInterval = EndPfmTime();
-	printf_s("压缩算法总用时:%f秒\n", timeInterval);
+	double timeInterval = Timer::Stop();
+	printf("time past:%fs\n", timeInterval);
 
 	return 0;
 }
 
-int PointCloudUncompressSingleFile(string pcdFileName, string outFileName) 
-{
-	BeginPfmTime();
+bool PointCloudCompressor::DecompressSingleFile(
+	const std::string& input_file,
+    const std::string& output_file
+) {
+	Timer::Start();
 
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw;
 	pcl::PointXYZ point;
@@ -1636,13 +1644,12 @@ int PointCloudUncompressSingleFile(string pcdFileName, string outFileName)
 		return -1;
 	}
 
-	FILE* compressFile;
-	fopen_s(&compressFile, outFileName.c_str(), "rb");
+	FILE* compressFile = FileUtils::CrossPlatformFopen(input_file, "rb");
 	if (compressFile == NULL) {
 		std::cout << "ERROR: Cannot open compress file " << std::endl;
 		return -1;
 	}
-	UINT64 fileLength = _filelength(_fileno(compressFile));
+	uint64_t fileLength = FileUtils::GetFileSize(compressFile);
 
 	Eigen::Vector3f	central_min;
 	Eigen::Vector3f	central_max;
@@ -1737,7 +1744,7 @@ int PointCloudUncompressSingleFile(string pcdFileName, string outFileName)
 	unsigned char bitToWriteTail[2] = { 0 };
 	memset(bitToWriteTail, 0x00, 2);
 
-	for (UINT64 lenFile = 0; lenFile < fileLength;) {
+	for (uint64_t lenFile = 0; lenFile < fileLength;) {
 		unsigned int  lenToWrite	 = 0;
 		unsigned char bitToWrite[10] = { 0 };
 		memset(bitToWrite, 0x00, 10);
@@ -2436,21 +2443,23 @@ int PointCloudUncompressSingleFile(string pcdFileName, string outFileName)
 		}
 	}
 
-	if (pcl::io::savePCDFile(pcdFileName, cloud_raw, true)) {
+	if (pcl::io::savePCDFile(output_file, cloud_raw, true)) {
 		std::cout << "ERROR: Cannot open pcd file " << std::endl;
 		return -1;
 	}
 	fclose(compressFile);
 
-	double timeInterval = EndPfmTime();
-	printf_s("解压缩算法总用时:%f秒\n", timeInterval);
+	double timeInterval = Timer::Stop();
+	printf("time past:%fs\n", timeInterval);
 
 	return 0;
 }
 
-int PointCloudUncompressFolder(string pcdFolderName, string outFolderName) 
-{
-	BeginPfmTime();
+bool PointCloudCompressor::DecompressFolder(
+	const std::string& input_folder,
+    const std::string& output_folder
+) {
+	Timer::Start();
 
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw;
 	pcl::PointXYZ point;
@@ -2481,20 +2490,19 @@ int PointCloudUncompressFolder(string pcdFolderName, string outFolderName)
 
 	vector<string> pcdList;
 	string format = ".mtx";
-	GetAllFormatFiles(pcdFolderName, pcdList, format);
+	FileUtils::GetAllFormatFiles(input_folder, pcdList, format);
 
 	int size = pcdList.size();
 	for (int i = 0; i < size; i++) {
 		ifstream in(pcdList[i]);
 
 		if (in) { // 有该文件
-			FILE* compressFile;
-			fopen_s(&compressFile, pcdList[i].c_str(), "rb");
+			FILE* compressFile = FileUtils::CrossPlatformFopen(pcdList[i], "rb");
 			if (compressFile == NULL) {
 				std::cout << "ERROR: Cannot open compress file " << std::endl;
 				return -1;
 			}
-			UINT64 fileLength = _filelength(_fileno(compressFile));		
+			uint64_t fileLength = FileUtils::GetFileSize(compressFile);		
 
 			fread((char*)(&lenX), sizeof(lenX), 1, compressFile);
 			fread((char*)(&lenY), sizeof(lenY), 1, compressFile);
@@ -2572,7 +2580,7 @@ int PointCloudUncompressFolder(string pcdFolderName, string outFolderName)
 			unsigned char bitToWriteTail[2] = { 0 };
 			memset(bitToWriteTail, 0x00, 2);
 
-			for (UINT64 lenFile = 0; lenFile < fileLength;) {
+			for (uint64_t lenFile = 0; lenFile < fileLength;) {
 				unsigned int  lenToWrite	 = 0;
 				unsigned char bitToWrite[10] = { 0 };
 				memset(bitToWrite, 0x00, 10);
@@ -3276,7 +3284,9 @@ int PointCloudUncompressFolder(string pcdFolderName, string outFolderName)
 
 			string::size_type iPos = (	pcdList[i].find_last_of('\\') + 1) == 0 ? 
 										pcdList[i].find_last_of('/') + 1 : pcdList[i].find_last_of('\\') + 1;
-			string pcdSaveName = outFolderName + "\\" + pcdList[i].substr(iPos, pcdList[i].length() - iPos);
+			fs::path pcdSavePath = output_folder;
+			pcdSavePath /= pcdList[i].substr(iPos, pcdList[i].length() - iPos);
+			string pcdSaveName = pcdSavePath.string();
 
 			if (pcl::io::savePCDFileBinaryCompressed(pcdSaveName.c_str(), cloud_raw)) {
 				std::cout << "ERROR: Cannot open pcd file " << std::endl;
@@ -3287,8 +3297,8 @@ int PointCloudUncompressFolder(string pcdFolderName, string outFolderName)
 		}
 	}
 
-	double timeInterval = EndPfmTime();
-	printf_s("解压缩算法总用时:%f秒\n", timeInterval);
+	double timeInterval = Timer::Stop();
+	printf("time past:%fs\n", timeInterval);
 
 	return 0;
 }

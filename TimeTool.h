@@ -6,11 +6,11 @@
 
 class Timer {
 private:
-    std::chrono::high_resolution_clock::time_point start_time;
+    static std::chrono::high_resolution_clock::time_point start_time;
     
 public:
-    void Start();
-    double Stop(); // ∑µªÿ√Î ˝
+    static void Start();
+    static double Stop(); // ????
 };
 
 #endif // TIMETOOL_H_INCLUDED
