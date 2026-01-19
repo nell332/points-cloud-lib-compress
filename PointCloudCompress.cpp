@@ -95,13 +95,13 @@ bool PointCloudCompressor::CompressSingleFile(
 
 		points.x = X;
 		points.x /= 100;
-		points.x += central_min[0];
+		points.x -= central_min[0];
 		points.y = Y;
 		points.y /= 100;
-		points.y += central_min[1];
+		points.y -= central_min[1];
 		points.z = Z;
 		points.z /= 100;
-		points.z += central_min[2];
+		points.z -= central_min[2];
 		cloud_raw_out.push_back(points);
 
 		if		(lenX <  256) {
@@ -144,6 +144,66 @@ bool PointCloudCompressor::CompressSingleFile(
 			T							= T >> 8;
 			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
 			lenToWrite				   += 3;
+		}
+		else if (2048 <= lenX && lenX < 4096) {
+			T							= X;
+			T							= T >> 4;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 8;
+			
+			T							= X;
+			T							= T << 12;
+			T							= T >> 8;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 4;
+		}
+		else if (4096 <= lenX && lenX < 8192) {
+			T							= X;
+			T							= T >> 5;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 8;
+			
+			T							= X;
+			T							= T << 11;
+			T							= T >> 8;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 5;
+		}
+		else if (8192 <= lenX && lenX < 16384) {
+			T							= X;
+			T							= T >> 6;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 8;
+			
+			T							= X;
+			T							= T << 10;
+			T							= T >> 8;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 6;
+		}
+		else if (16384 <= lenX && lenX < 32768) {
+			T							= X;
+			T							= T >> 7;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 8;
+			
+			T							= X;
+			T							= T << 9;
+			T							= T >> 8;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 7;
+		}
+		else if (32768 <= lenX && lenX < 65536) {
+			T							= X;
+			T							= T >> 8;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 8;
+			
+			T							= X;
+			T							= T << 8;
+			T							= T >> 8;
+			bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+			lenToWrite				   += 8;
 		}
 
 		if		(lenY <  256) {
@@ -192,6 +252,58 @@ bool PointCloudCompressor::CompressSingleFile(
 				W							= (unsigned char)T;
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 3;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
 				break;
 			default:
 				break;
@@ -251,6 +363,58 @@ bool PointCloudCompressor::CompressSingleFile(
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 4;
 				break;
+			case 4:
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
 			default:
 				break;
 			}
@@ -309,6 +473,64 @@ bool PointCloudCompressor::CompressSingleFile(
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 5;
 				break;
+			case 4:
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
 			default:
 				break;
 			}
@@ -366,6 +588,770 @@ bool PointCloudCompressor::CompressSingleFile(
 				W							= (unsigned char)T;
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 6;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (2048 <= lenY && lenY < 4096) {
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Y;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 1:
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 2:
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 3:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (4096 <= lenY && lenY < 8192) { // 13
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 1:
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 2:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 3:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (8192 <= lenY && lenY < 16384) { // 14
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 1:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 2:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 3:
+				T							= Y;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 13;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (16384 <= lenY && lenY < 32768) { // 15
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 1:
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 2:
+				T							= Y;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 3:
+				T							= Y;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Y;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 13;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 14;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (32768 <= lenY && lenY < 65536) { // 16
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 1:
+				T							= Y;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Y;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 2:
+				T							= Y;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Y;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 3:
+				T							= Y;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Y;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 4:
+				T							= Y;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Y;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 5:
+				T							= Y;
+				T							= T >> 13;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Y;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 6:
+				T							= Y;
+				T							= T >> 14;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Y;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 7:
+				T							= Y;
+				T							= T >> 15;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Y;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Y;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
 				break;
 			default:
 				break;
@@ -458,11 +1444,24 @@ bool PointCloudCompressor::CompressSingleFile(
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 6;
 				break;
+			case 7:
+				T							= Z;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
 			default:
 				break;
 			}
 		}
-		else if (256  <= lenZ && lenZ < 512) {
+		else if (256  <= lenZ && lenZ < 512) { // 9
 			switch (lenToWrite % 8) {
 			case 0:
 				T							= Z;
@@ -554,6 +1553,19 @@ bool PointCloudCompressor::CompressSingleFile(
 				W							= (unsigned char)T;
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 7;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
 				break;
 			default:
 				break;
@@ -651,11 +1663,30 @@ bool PointCloudCompressor::CompressSingleFile(
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 8;
 				break;
+			case 7:
+				T							= Z;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
 			default:
 				break;
 			}
 		}
-		else if (1024 <= lenZ && lenZ < 2048) {
+		else if (1024 <= lenZ && lenZ < 2048) { // 11
 			switch (lenToWrite % 8) {
 			case 0:
 				T							= Z;
@@ -752,6 +1783,725 @@ bool PointCloudCompressor::CompressSingleFile(
 				W							= (unsigned char)T;
 				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 				lenToWrite				   += 1;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (2048 <= lenZ && lenZ < 4096) { // 12
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Z;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 1:
+				T							= Z;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Z;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 2:
+				T							= Z;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Z;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 3:
+				T							= Z;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Z;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 4:
+				T							= Z;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Z;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 5:
+				T							= Z;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Z;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 6:
+				T							= Z;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Z;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (4096 <= lenZ && lenZ < 8192) { // 13
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Z;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 1:
+				T							= Z;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Z;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 2:
+				T							= Z;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Z;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 3:
+				T							= Z;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Z;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 4:
+				T							= Z;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Z;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 5:
+				T							= Z;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Z;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 6:
+				T							= Z;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Z;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (8192 <= lenZ && lenZ < 16384) { // 14
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Z;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 1:
+				T							= Z;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Z;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 2:
+				T							= Z;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Z;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 3:
+				T							= Z;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Z;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 4:
+				T							= Z;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Z;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 5:
+				T							= Z;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Z;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 6:
+				T							= Z;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Z;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 13;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (16384 <= lenZ && lenZ < 32768) { // 15
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Z;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+				break;
+			case 1:
+				T							= Z;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Z;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 2:
+				T							= Z;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Z;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 3:
+				T							= Z;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Z;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 4:
+				T							= Z;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Z;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 5:
+				T							= Z;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Z;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 6:
+				T							= Z;
+				T							= T >> 13;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Z;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 14;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (32768 <= lenZ && lenZ < 65536) { // 16
+			switch (lenToWrite % 8) {
+			case 0:
+				T							= Z;
+				T							= T >> 8;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 0;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+				break;
+			case 1:
+				T							= Z;
+				T							= T >> 9;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
+
+				T							= Z;
+				T							= T >> 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+				break;
+			case 2:
+				T							= Z;
+				T							= T >> 10;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+
+				T							= Z;
+				T							= T >> 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+				break;
+			case 3:
+				T							= Z;
+				T							= T >> 11;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 5;
+
+				T							= Z;
+				T							= T >> 3;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 4:
+				T							= Z;
+				T							= T >> 12;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+
+				T							= Z;
+				T							= T >> 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 4;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 4;
+				break;
+			case 5:
+				T							= Z;
+				T							= T >> 13;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+
+				T							= Z;
+				T							= T >> 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 5;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 3;
+				break;
+			case 6:
+				T							= Z;
+				T							= T >> 14;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 2;
+
+				T							= Z;
+				T							= T >> 6;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 2;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 6;
+				break;
+			case 7:
+				T							= Z;
+				T							= T >> 15;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 1;
+
+				T							= Z;
+				T							= T >> 7;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 8;
+
+				T							= Z;
+				T							= T << 1;
+				W							= (unsigned char)T;
+				bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+				lenToWrite				   += 7;
 				break;
 			default:
 				break;
@@ -915,13 +2665,13 @@ bool PointCloudCompressor::CompressFolder(
 
 				points.x = X;
 				points.x /= 100;
-				points.x += central_min[0];
+				points.x -= central_min[0];
 				points.y = Y;
 				points.y /= 100;
-				points.y += central_min[1];
+				points.y -= central_min[1];
 				points.z = Z;
 				points.z /= 100;
-				points.z += central_min[2];
+				points.z -= central_min[2];
 				cloud_raw_out.push_back(points);
 
 				if		(lenX <  256) {
@@ -964,6 +2714,66 @@ bool PointCloudCompressor::CompressFolder(
 					T							= T >> 8;
 					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
 					lenToWrite				   += 3;
+				}
+				else if (2048 <= lenX && lenX < 4096) {
+					T							= X;
+					T							= T >> 4;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 8;
+			
+					T							= X;
+					T							= T << 12;
+					T							= T >> 8;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 4;
+				}
+				else if (4096 <= lenX && lenX < 8192) {
+					T							= X;
+					T							= T >> 5;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 8;
+			
+					T							= X;
+					T							= T << 11;
+					T							= T >> 8;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 5;
+				}
+				else if (8192 <= lenX && lenX < 16384) {
+					T							= X;
+					T							= T >> 6;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 8;
+			
+					T							= X;
+					T							= T << 10;
+					T							= T >> 8;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 6;
+				}
+				else if (16384 <= lenX && lenX < 32768) {
+					T							= X;
+					T							= T >> 7;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 8;
+			
+					T							= X;
+					T							= T << 9;
+					T							= T >> 8;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 7;
+				}
+				else if (32768 <= lenX && lenX < 65536) {
+					T							= X;
+					T							= T >> 8;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 8;
+			
+					T							= X;
+					T							= T << 8;
+					T							= T >> 8;
+					bitToWrite[lenToWrite / 8]	= (unsigned char)T;
+					lenToWrite				   += 8;
 				}
 
 				if		(lenY <  256) {
@@ -1012,6 +2822,58 @@ bool PointCloudCompressor::CompressFolder(
 						W							= (unsigned char)T;
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 3;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
 						break;
 					default:
 						break;
@@ -1071,6 +2933,58 @@ bool PointCloudCompressor::CompressFolder(
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 4;
 						break;
+					case 4:
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
 					default:
 						break;
 					}
@@ -1129,6 +3043,64 @@ bool PointCloudCompressor::CompressFolder(
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 5;
 						break;
+					case 4:
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
 					default:
 						break;
 					}
@@ -1186,6 +3158,770 @@ bool PointCloudCompressor::CompressFolder(
 						W							= (unsigned char)T;
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 6;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (2048 <= lenY && lenY < 4096) {
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Y;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 1:
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 2:
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 3:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (4096 <= lenY && lenY < 8192) { // 13
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 1:
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 2:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 3:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (8192 <= lenY && lenY < 16384) { // 14
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 1:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 2:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 3:
+						T							= Y;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 13;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (16384 <= lenY && lenY < 32768) { // 15
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 1:
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 2:
+						T							= Y;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 3:
+						T							= Y;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Y;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 13;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 14;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (32768 <= lenY && lenY < 65536) { // 16
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 1:
+						T							= Y;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Y;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 2:
+						T							= Y;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Y;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 3:
+						T							= Y;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Y;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 4:
+						T							= Y;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Y;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 5:
+						T							= Y;
+						T							= T >> 13;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Y;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 6:
+						T							= Y;
+						T							= T >> 14;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Y;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 7:
+						T							= Y;
+						T							= T >> 15;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Y;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Y;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
 						break;
 					default:
 						break;
@@ -1278,11 +4014,24 @@ bool PointCloudCompressor::CompressFolder(
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 6;
 						break;
+					case 7:
+						T							= Z;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
 					default:
 						break;
 					}
 				}
-				else if (256  <= lenZ && lenZ < 512) {
+				else if (256  <= lenZ && lenZ < 512) { // 9
 					switch (lenToWrite % 8) {
 					case 0:
 						T							= Z;
@@ -1374,6 +4123,19 @@ bool PointCloudCompressor::CompressFolder(
 						W							= (unsigned char)T;
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 7;
+						break;
+					case 7:
+						T							= Z;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
 						break;
 					default:
 						break;
@@ -1471,11 +4233,30 @@ bool PointCloudCompressor::CompressFolder(
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 8;
 						break;
+					case 7:
+						T							= Z;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
 					default:
 						break;
 					}
 				}
-				else if (1024 <= lenZ && lenZ < 2048) {
+				else if (1024 <= lenZ && lenZ < 2048) { // 11
 					switch (lenToWrite % 8) {
 					case 0:
 						T							= Z;
@@ -1573,6 +4354,725 @@ bool PointCloudCompressor::CompressFolder(
 						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
 						lenToWrite				   += 1;
 						break;
+					case 7:
+						T							= Z;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (2048 <= lenZ && lenZ < 4096) { // 12
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Z;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 1:
+						T							= Z;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Z;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 2:
+						T							= Z;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Z;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 3:
+						T							= Z;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Z;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 4:
+						T							= Z;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Z;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 5:
+						T							= Z;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Z;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 6:
+						T							= Z;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Z;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 7:
+						T							= Z;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (4096 <= lenZ && lenZ < 8192) { // 13
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Z;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 1:
+						T							= Z;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Z;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 2:
+						T							= Z;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Z;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 3:
+						T							= Z;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Z;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 4:
+						T							= Z;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Z;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 5:
+						T							= Z;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Z;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 6:
+						T							= Z;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Z;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 7:
+						T							= Z;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (8192 <= lenZ && lenZ < 16384) { // 14
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Z;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 1:
+						T							= Z;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Z;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 2:
+						T							= Z;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Z;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 3:
+						T							= Z;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Z;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 4:
+						T							= Z;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Z;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 5:
+						T							= Z;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Z;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 6:
+						T							= Z;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Z;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 7:
+						T							= Z;
+						T							= T >> 13;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (16384 <= lenZ && lenZ < 32768) { // 15
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Z;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
+					case 1:
+						T							= Z;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Z;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 2:
+						T							= Z;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Z;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 3:
+						T							= Z;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Z;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 4:
+						T							= Z;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Z;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 5:
+						T							= Z;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Z;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 6:
+						T							= Z;
+						T							= T >> 13;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Z;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+						break;
+					case 7:
+						T							= Z;
+						T							= T >> 14;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					default:
+						break;
+					}
+				}
+				else if (32768 <= lenZ && lenZ < 65536) { // 16
+					switch (lenToWrite % 8) {
+					case 0:
+						T							= Z;
+						T							= T >> 8;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 0;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+						break;
+					case 1:
+						T							= Z;
+						T							= T >> 9;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+
+						T							= Z;
+						T							= T >> 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+						break;
+					case 2:
+						T							= Z;
+						T							= T >> 10;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+
+						T							= Z;
+						T							= T >> 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+						break;
+					case 3:
+						T							= Z;
+						T							= T >> 11;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 5;
+
+						T							= Z;
+						T							= T >> 3;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 4:
+						T							= Z;
+						T							= T >> 12;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+
+						T							= Z;
+						T							= T >> 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 4;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 4;
+						break;
+					case 5:
+						T							= Z;
+						T							= T >> 13;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+
+						T							= Z;
+						T							= T >> 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 5;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 3;
+						break;
+					case 6:
+						T							= Z;
+						T							= T >> 14;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 2;
+
+						T							= Z;
+						T							= T >> 6;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 2;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 6;
+						break;
+					case 7:
+						T							= Z;
+						T							= T >> 15;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 1;
+
+						T							= Z;
+						T							= T >> 7;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 8;
+
+						T							= Z;
+						T							= T << 1;
+						W							= (unsigned char)T;
+						bitToWrite[lenToWrite / 8]	= bitToWrite[lenToWrite / 8] | W;
+						lenToWrite				   += 7;
+						break;
 					default:
 						break;
 					}
@@ -1660,10 +5160,6 @@ bool PointCloudCompressor::DecompressSingleFile(
 	central_max[1] = config["Y_MAX"].as<float>();
 	central_max[2] = config["Z_MAX"].as<float>();
 
-	//uint16_t lenX = abs((central_max[0] - central_min[0]) * 100);
-	//uint16_t lenY = abs((central_max[1] - central_min[1]) * 100);
-	//uint16_t lenZ = abs((central_max[2] - central_min[2]) * 100);
-
 	uint16_t lenX = 0;
 	uint16_t lenY = 0;
 	uint16_t lenZ = 0;
@@ -1674,6 +5170,7 @@ bool PointCloudCompressor::DecompressSingleFile(
 
 	unsigned char LEN_READ_ONCE = 0;
 	unsigned char FIX_READ_ONCE = 0;
+	
 	if		(lenX <  256) {
 		LEN_READ_ONCE += 8;
 		lenX = 8;
@@ -1689,6 +5186,26 @@ bool PointCloudCompressor::DecompressSingleFile(
 	else if (1024 <= lenX && lenX < 2048) {
 		LEN_READ_ONCE += 11;
 		lenX = 11;
+	}
+	else if (2048 <= lenX && lenX < 4096) {
+		LEN_READ_ONCE += 12;
+		lenX = 12;
+	}
+	else if (4096 <= lenX && lenX < 8192) {
+		LEN_READ_ONCE += 13;
+		lenX = 13;
+	}
+	else if (8192 <= lenX && lenX < 16384) {
+		LEN_READ_ONCE += 14;
+		lenX = 14;
+	}
+	else if (16384 <= lenX && lenX < 32768) {
+		LEN_READ_ONCE += 15;
+		lenX = 15;
+	}
+	else if (32768 <= lenX && lenX < 65536) {
+		LEN_READ_ONCE += 16;
+		lenX = 16;
 	}
 
 	if		(lenY <  256) {
@@ -1707,6 +5224,26 @@ bool PointCloudCompressor::DecompressSingleFile(
 		LEN_READ_ONCE += 11;
 		lenY = 11;
 	}
+	else if (2048 <= lenY && lenY < 4096) {
+		LEN_READ_ONCE += 12;
+		lenY = 12;
+	}
+	else if (4096 <= lenY && lenY < 8192) {
+		LEN_READ_ONCE += 13;
+		lenY = 13;
+	}
+	else if (8192 <= lenY && lenY < 16384) {
+		LEN_READ_ONCE += 14;
+		lenY = 14;
+	}
+	else if (16384 <= lenY && lenY < 32768) {
+		LEN_READ_ONCE += 15;
+		lenY = 15;
+	}
+	else if (32768 <= lenY && lenY < 65536) {
+		LEN_READ_ONCE += 16;
+		lenY = 16;
+	}
 
 	if		(lenZ <  256) {
 		LEN_READ_ONCE += 8;
@@ -1723,6 +5260,26 @@ bool PointCloudCompressor::DecompressSingleFile(
 	else if (1024 <= lenZ && lenZ < 2048) {
 		LEN_READ_ONCE += 11;
 		lenY = 11;
+	}
+	else if (2048 <= lenZ && lenZ < 4096) {
+		LEN_READ_ONCE += 12;
+		lenZ = 12;
+	}
+	else if (4096 <= lenZ && lenZ < 8192) {
+		LEN_READ_ONCE += 13;
+		lenZ = 13;
+	}
+	else if (8192 <= lenZ && lenZ < 16384) {
+		LEN_READ_ONCE += 14;
+		lenZ = 14;
+	}
+	else if (16384 <= lenZ && lenZ < 32768) {
+		LEN_READ_ONCE += 15;
+		lenZ = 15;
+	}
+	else if (32768 <= lenZ && lenZ < 65536) {
+		LEN_READ_ONCE += 16;
+		lenZ = 16;
 	}
 
 	FIX_READ_ONCE = LEN_READ_ONCE;
@@ -1815,6 +5372,61 @@ bool PointCloudCompressor::DecompressSingleFile(
 			pX			 = pX / 100;
 			point.x		 = pX;
 			lenToWrite	+= 11;
+			break;
+		case 12:
+			X			 = bitToWrite[lenToWrite / 8];
+			T			 = bitToWrite[lenToWrite / 8 + 1];
+			T		   >>= 4;
+			X		   <<= 4;
+			X			 = X | T;
+			pX			 = X;
+			pX			 = pX / 100;
+			point.x		 = pX;
+			lenToWrite	+= 12;
+			break;
+		case 13:
+			X			 = bitToWrite[lenToWrite / 8];
+			T			 = bitToWrite[lenToWrite / 8 + 1];
+			T		   >>= 3;
+			X		   <<= 5;
+			X			 = X | T;
+			pX			 = X;
+			pX			 = pX / 100;
+			point.x		 = pX;
+			lenToWrite	+= 13;
+			break;
+		case 14:
+			X			 = bitToWrite[lenToWrite / 8];
+			T			 = bitToWrite[lenToWrite / 8 + 1];
+			T		   >>= 2;
+			X		   <<= 6;
+			X			 = X | T;
+			pX			 = X;
+			pX			 = pX / 100;
+			point.x		 = pX;
+			lenToWrite	+= 14;
+			break;
+		case 15:
+			X			 = bitToWrite[lenToWrite / 8];
+			T			 = bitToWrite[lenToWrite / 8 + 1];
+			T		   >>= 1;
+			X		   <<= 7;
+			X			 = X | T;
+			pX			 = X;
+			pX			 = pX / 100;
+			point.x		 = pX;
+			lenToWrite	+= 15;
+			break;
+		case 16:
+			X			 = bitToWrite[lenToWrite / 8];
+			T			 = bitToWrite[lenToWrite / 8 + 1];
+			T		   >>= 0;
+			X		   <<= 8;
+			X			 = X | T;
+			pX			 = X;
+			pX			 = pX / 100;
+			point.x		 = pX;
+			lenToWrite	+= 16;
 			break;
 		default:
 			break;
@@ -2479,10 +6091,6 @@ bool PointCloudCompressor::DecompressFolder(
 	central_max[0] = config["X_MAX"].as<float>();
 	central_max[1] = config["Y_MAX"].as<float>();
 	central_max[2] = config["Z_MAX"].as<float>();
-
-	//uint16_t lenX = abs((central_max[0] - central_min[0]) * 100);
-	//uint16_t lenY = abs((central_max[1] - central_min[1]) * 100);
-	//uint16_t lenZ = abs((central_max[2] - central_min[2]) * 100);
 
 	uint16_t lenX = 0;
 	uint16_t lenY = 0;
