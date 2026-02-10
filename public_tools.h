@@ -11,6 +11,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/common/common.h>
 
 namespace fs = std::filesystem;
 

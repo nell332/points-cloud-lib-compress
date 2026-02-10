@@ -40,11 +40,13 @@ private:
 public:
     bool CompressSingleFile(const std::string& input_file, 
                             const std::string& output_file, 
-                            bool remove_duplicates);
+                            bool remove_duplicates,
+                            bool crop);
 
     bool CompressFolder(const std::string& input_folder,
                         const std::string& output_folder,
-                        bool remove_duplicates);
+                        bool remove_duplicates,
+                        bool crop);
                         
     bool DecompressSingleFile(  const std::string& input_file,
                                 const std::string& output_file);
