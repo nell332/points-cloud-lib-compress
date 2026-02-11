@@ -1,36 +1,14 @@
 # points-cloud-lib-compress
 
-#### Description
-雷达点云压缩
+#### Introduction
+LiDAR Point Cloud Compression
 
-#### Software Architecture
-Software architecture description
+#### Usage Instructions
+1. Compression command: pcd_compress.exe /z pcdfolder zipfolder 1 1
+2. Decompression command: pcd_compress.exe /u zipfolder pcdfolder
 
-#### Installation
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Instructions
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
-
-
-#### Gitee Feature
-
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#### Testing
+1. Test data link: https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles
+2. Original data size: 368 MB (with binary compression enabled)
+3. Compressed size: 223 MB
+4. Compression ratio: 223/368 = 60%
