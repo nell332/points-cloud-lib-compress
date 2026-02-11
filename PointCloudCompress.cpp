@@ -11,9 +11,7 @@ bool PointCloudCompressor::CompressSingleFile(
 ) {
 	Timer::Start();
 
-	pcl::PointXYZ points;
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw_in;
-	pcl::PointCloud<pcl::PointXYZ> cloud_raw_out;
 	pcl::PointCloud<pcl::PointXYZ> cloud_raw;
 	if (pcl::io::loadPCDFile<pcl::PointXYZ>(input_file, cloud_raw_in)) {
 		std::cout << "ERROR: Cannot open pcd file " << std::endl;
@@ -33,35 +31,45 @@ bool PointCloudCompressor::CompressSingleFile(
 		return -1;
 	}
 
-	Eigen::Vector3f	central_min;
-	Eigen::Vector3f	central_max;
-	if (crop == true) {
-		central_min[0] = config["X_MIN"].as<float>();
-		central_min[1] = config["Y_MIN"].as<float>();
-		central_min[2] = config["Z_MIN"].as<float>();
-		central_max[0] = config["X_MAX"].as<float>();
-		central_max[1] = config["Y_MAX"].as<float>();
-		central_max[2] = config["Z_MAX"].as<float>();
+	if (central_min[0] == 999) {
+		if (crop == true) {
+			central_min[0] = config["X_MIN"].as<float>();
+			central_min[1] = config["Y_MIN"].as<float>();
+			central_min[2] = config["Z_MIN"].as<float>();
+			central_max[0] = config["X_MAX"].as<float>();
+			central_max[1] = config["Y_MAX"].as<float>();
+			central_max[2] = config["Z_MAX"].as<float>();
+		}
+		else {
+			pcl::PointXYZ min_pt, max_pt;
+			pcl::getMinMax3D(cloud_raw_in, min_pt, max_pt);
 
+			central_min[0] = min_pt.x;
+			central_min[1] = min_pt.y;
+			central_min[2] = min_pt.z;
+			central_max[0] = max_pt.x;
+			central_max[1] = max_pt.y;
+			central_max[2] = max_pt.z;
+		}
+	}
+
+	if (crop == true) {
 		PointCloudUtils::CubeCloud(cloud_raw_in, cloud_raw, central_min, central_max);
 	}
 	else {
-		pcl::PointXYZ min_pt, max_pt;
-		pcl::getMinMax3D(cloud_raw_in, min_pt, max_pt);
-
-		central_min[0] = min_pt.x;
-		central_min[1] = min_pt.y;
-		central_min[2] = min_pt.z;
-		central_max[0] = max_pt.x;
-		central_max[1] = max_pt.y;
-		central_max[2] = max_pt.z;
 		cloud_raw = cloud_raw_in;
 	}
+
+	int16_t minX = int16_t(central_min[0] * 100);
+	int16_t minY = int16_t(central_min[1] * 100);
+	int16_t minZ = int16_t(central_min[2] * 100);
+	fwrite((char*)(&minX), sizeof(minX), 1, compressFile);
+	fwrite((char*)(&minY), sizeof(minY), 1, compressFile);
+	fwrite((char*)(&minZ), sizeof(minZ), 1, compressFile);
 
 	uint16_t lenX = abs((central_max[0] - central_min[0]) * 100);
 	uint16_t lenY = abs((central_max[1] - central_min[1]) * 100);
 	uint16_t lenZ = abs((central_max[2] - central_min[2]) * 100);
-
 	fwrite((char*)(&lenX), sizeof(lenX), 1, compressFile);
 	fwrite((char*)(&lenY), sizeof(lenY), 1, compressFile);
 	fwrite((char*)(&lenZ), sizeof(lenZ), 1, compressFile);
@@ -107,17 +115,6 @@ bool PointCloudCompressor::CompressSingleFile(
 				L_Z = Z;
 			}
 		}
-
-		points.x = X;
-		points.x /= 100;
-		points.x -= central_min[0];
-		points.y = Y;
-		points.y /= 100;
-		points.y -= central_min[1];
-		points.z = Z;
-		points.z /= 100;
-		points.z -= central_min[2];
-		cloud_raw_out.push_back(points);
 
 		if		(lenX <  256) {
 			T							= X;
@@ -2560,8 +2557,6 @@ bool PointCloudCompressor::CompressSingleFile(
 	cloud_raw.resize(0);
 	cloud_raw_in.clear();
 	cloud_raw_in.resize(0);
-	cloud_raw_out.clear();
-	cloud_raw_out.resize(0);
 
 	fclose(compressFile);
 
@@ -2579,26 +2574,14 @@ bool PointCloudCompressor::CompressFolder(
 ) {
 	Timer::Start();
 
+	central_min[0] = 999;
+
 	YAML::Node config;
 	config = YAML::LoadFile("pcd_compress.yaml");
 	if (config.IsNull()) {
 		std::cout << "ERROR: Cannot open config file " << std::endl;
 		return -1;
 	}
-
-	Eigen::Vector3f	central_min;
-	Eigen::Vector3f	central_max;
-	central_min[0] = config["X_MIN"].as<float>();
-	central_min[1] = config["Y_MIN"].as<float>();
-	central_min[2] = config["Z_MIN"].as<float>();
-	central_max[0] = config["X_MAX"].as<float>();
-	central_max[1] = config["Y_MAX"].as<float>();
-	central_max[2] = config["Z_MAX"].as<float>();
-
-	pcl::PointXYZ points;
-	pcl::PointCloud<pcl::PointXYZ> cloud_raw_in;
-	pcl::PointCloud<pcl::PointXYZ> cloud_raw_out;
-	pcl::PointCloud<pcl::PointXYZ> cloud_raw;
 
 	vector<string> pcdList;
 	string format = ".pcd";
@@ -2650,18 +2633,20 @@ bool PointCloudCompressor::DecompressSingleFile(
 	uint64_t fileLength = FileUtils::GetFileSize(compressFile);
 
 	Eigen::Vector3f	central_min;
-	Eigen::Vector3f	central_max;
-	central_min[0] = config["X_MIN"].as<float>();
-	central_min[1] = config["Y_MIN"].as<float>();
-	central_min[2] = config["Z_MIN"].as<float>();
-	central_max[0] = config["X_MAX"].as<float>();
-	central_max[1] = config["Y_MAX"].as<float>();
-	central_max[2] = config["Z_MAX"].as<float>();
+
+	int16_t minX = 0;
+	int16_t minY = 0;
+	int16_t minZ = 0;
+	fread((char*)(&minX), sizeof(minX), 1, compressFile);
+	fread((char*)(&minY), sizeof(minY), 1, compressFile);
+	fread((char*)(&minZ), sizeof(minZ), 1, compressFile);
+	central_min[0] = minX / 100;
+	central_min[1] = minY / 100;
+	central_min[2] = minZ / 100;
 
 	uint16_t lenX = 0;
 	uint16_t lenY = 0;
 	uint16_t lenZ = 0;
-
 	fread((char*)(&lenX), sizeof(lenX), 1, compressFile);
 	fread((char*)(&lenY), sizeof(lenY), 1, compressFile);
 	fread((char*)(&lenZ), sizeof(lenZ), 1, compressFile);

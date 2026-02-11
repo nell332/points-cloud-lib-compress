@@ -36,6 +36,9 @@ private:
         uint16_t ReadBits(int bits);
         bool CanRead(int bits) const;
     };
+
+    Eigen::Vector3f	central_min;
+    Eigen::Vector3f	central_max;
     
 public:
     bool CompressSingleFile(const std::string& input_file, 
