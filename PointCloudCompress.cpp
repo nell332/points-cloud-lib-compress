@@ -31,7 +31,7 @@ bool PointCloudCompressor::CompressSingleFile(
 		return -1;
 	}
 
-	if (central_min[0] == 999) {
+	if (central_min[0] == 65535) {
 		if (crop == true) {
 			central_min[0] = config["X_MIN"].as<float>();
 			central_min[1] = config["Y_MIN"].as<float>();
@@ -2574,7 +2574,7 @@ bool PointCloudCompressor::CompressFolder(
 ) {
 	Timer::Start();
 
-	central_min[0] = 999;
+	central_min[0] = 65535;
 
 	YAML::Node config;
 	config = YAML::LoadFile("pcd_compress.yaml");
